@@ -126,7 +126,17 @@ UPDATE `users` SET birthday_at = '1971-11-26 12:42:28'   WHERE id=99;
 UPDATE `users` SET birthday_at = '1997-02-11 06:06:06'   WHERE id=100; 
 
 
+SELECT ROUND(AVG(TIMESTAMPDIFF(YEAR, birthday_at, NOW())), 0) AS AVG_Age FROM users;
 
+SELECT
+    DAYNAME(CONCAT(YEAR(NOW()), '-', SUBSTRING(birthday_at, 6, 10))) AS week_day_of_birthday,
+    COUNT(*) AS amount_of_birthday
+FROM
+    users
+GROUP BY 
+    week_day_of_birthday
+ORDER BY
+	amount_of_birthday DESC;
 
 
 
