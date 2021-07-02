@@ -75,10 +75,15 @@ GROUP BY gender;
 -- 4. ѕодсчитать количество лайков которые получили 10 самых молодых пользователей.
 
 
-
-
-
-
+SELECT count(*) as total_likes FROM media as m WHERE id IN (
+	SELECT id FROM media 
+	WHERE user_id IN (
+		SELECT * FROM (
+			SELECT user_id FROM profiles ORDER by birthday DESC LIMIT 10
+		) as user_id		
+	)
+)
+;
 
 
 -- 5. Ќайти 10 пользователей, которые про€вл€ют наименьшую активность в
@@ -86,6 +91,33 @@ GROUP BY gender;
 -- (критерии активности необходимо определить самосто€тельно).
 
 
+-- критерии: не общаетс€ в группах и не ставит лайки
+
+
+(SELECT id,0 as activite FROM users WHERE id NOT IN (SELECT user_id FROM posts GROUP by user_id))
+UNION
+(SELECT user_id as id, COUNT(*) as activite FROM posts GROUP by user_id);
+
+(SELECT id,0 as activite FROM users WHERE id NOT IN (SELECT user_id FROM likes GROUP by user_id))
+UNION
+(SELECT user_id as id, COUNT(*) as activite FROM likes GROUP by user_id);
+
+SELECT id, SUM(activite) as total_activite FROM (
+	SELECT * FROM (
+		(SELECT id,0 as activite FROM users WHERE id NOT IN (SELECT user_id FROM posts GROUP by user_id))
+		UNION
+		(SELECT user_id as id, COUNT(*) as activite FROM posts GROUP by user_id)	
+	) as tmp_posts
+	UNION ALL
+	SELECT * FROM (
+		(SELECT id,0 as activite FROM users WHERE id NOT IN (SELECT user_id FROM likes GROUP by user_id))
+		UNION
+		(SELECT user_id as id, COUNT(*) as activite FROM likes GROUP by user_id)
+	) as tmp_likes	
+) as tmp_table
+GROUP by id
+ORDER by total_activite
+LIMIT 10;
 
 
 
